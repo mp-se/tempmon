@@ -1,0 +1,15 @@
+{
+    "id": "7376ef",
+    "temp-c": 12,
+    "temp-f": 32,
+    "sleep-interval": 300,
+    "battery": 3.81,
+    "temp-format": "C",
+    "sleep-mode": false,
+    "rssi": -56,
+    "app-ver": "0.0.0",
+    "app-build": "gitrev",
+    "mdns": "tempmon",
+    "wifi-ssid": "wifi",
+    "runtime-average": 3.12
+}
