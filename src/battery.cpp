@@ -32,7 +32,6 @@ void BatteryVoltage::read() {
 
   // An ESP8266 has a ADC range of 0-1023 and a maximum voltage of 3.3V
   // An ESP32 has an ADC range of 0-4095 and a maximum voltage of 3.3V
-
   _batteryLevel = ((3.3 / 1023) * v) * factor;
 #if LOG_LEVEL == 6
   Log.verbose(
