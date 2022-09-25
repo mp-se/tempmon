@@ -21,13 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#include <config.hpp>
-#include <helper.hpp>
+#include <basepush.hpp>
+#include <battery.hpp>
+#include <log.hpp>
 #include <main.hpp>
-#include <pushtarget.hpp>
+#include <ota.hpp>
+#include <tempconfig.hpp>
+#include <templating.hpp>
 #include <tempsensor.hpp>
-#include <webserver.hpp>
-#include <wifi.hpp>
+#include <tempweb.hpp>
+#include <wificonnection.hpp>
+
+SerialDebug mySerial(115200L);
+TempConfig myConfig("tempmon", "/tempmon.json");
+WifiConnection myWifi(&myConfig, "temp", "password", "tempmon", "", "");
+// OtaUpdate myOta(&myConfig, "0.0.0");
+BasePush myPush(&myConfig);
+TempWebHandler myWebHandler(&myConfig);
 
 int interval = 200;       // ms, time to wait between changes to output
 uint32_t loopMillis = 0;  // Used for main loop to run the code every _interval_
@@ -56,54 +66,42 @@ void checkSleepMode(float volt) {
 }
 
 void setup() {
-  LOG_PERF_START("run-time");
-  LOG_PERF_START("main-setup");
   runtimeMillis = millis();
 
   Log.notice(F("Main: Started setup for %s." CR),
              String(ESP.getChipId(), HEX).c_str());
-  printBuildOptions();
 
-  LOG_PERF_START("main-config-load");
   myConfig.checkFileSystem();
-  checkResetReason();
   myConfig.loadFile();
   myWifi.init();
-  myAdvancedConfig.loadFile();
-  LOG_PERF_STOP("main-config-load");
 
-  // Setup watchdog
 #if defined(ESP8266)
   ESP.wdtDisable();
-  ESP.wdtEnable(5000);  // 5 seconds
-#else                   // defined (ESP32)
+  ESP.wdtEnable(5000);
+#else
 #endif
 
-  // No stored config, move to portal
   if (!myWifi.hasConfig()) {
     Log.notice(
         F("Main: No wifi configuration detected, entering wifi setup." CR));
     runMode = RunMode::wifiSetupMode;
   }
 
-  // Double reset, go to portal.
   if (myWifi.isDoubleResetDetected()) {
     Log.notice(F("Main: Double reset detected, entering wifi setup." CR));
     runMode = RunMode::wifiSetupMode;
   }
 
-  bool needWifi = true;  // Under ESP32 we dont need wifi if only BLE is active
-                         // in gravityMode
-
-  // Do this setup for all modes exect wifi setup
   switch (runMode) {
     case RunMode::wifiSetupMode:
       myWifi.startPortal();
       break;
 
     default:
-      myBatteryVoltage.read();
-      checkSleepMode(myBatteryVoltage.getVoltage());
+      BatteryVoltage bv;
+      bv.getInstance().setConfig(&myConfig);
+      bv.getInstance().read();
+      checkSleepMode(bv.getInstance().getVoltage());
 
 #if defined(ESP32)
       if (!myConfig.isWifiPushActive() && runMode == RunMode::gravityMode) {
@@ -113,36 +111,26 @@ void setup() {
         needWifi = false;
       }
 #endif
-
-      if (needWifi) {
-        LOG_PERF_START("main-wifi-connect");
-        myWifi.connect();
-        LOG_PERF_STOP("main-wifi-connect");
-      }
-
-      LOG_PERF_START("main-temp-setup");
-      myTempSensor.setup();
-      LOG_PERF_STOP("main-temp-setup");
+      myWifi.connect();
+      TempSensor ts;
+      ts.getInstance().setup(&myConfig);
       break;
   }
 
-  // Do this setup for configuration mode
   switch (runMode) {
     case RunMode::configurationMode:
       if (myWifi.isConnected()) {
         Log.notice(F("Main: Activating web server." CR));
-        myWebServerHandler
-            .setupWebServer();  // Takes less than 4ms, so skip this measurement
+        myWebHandler.setupWebServer();
       }
 
-      interval = 1000;  // Change interval from 200ms to 1s
+      interval = 1000;
       break;
 
     default:
       break;
   }
 
-  LOG_PERF_STOP("main-setup");
   Log.notice(F("Main: Setup completed." CR));
 }
 
@@ -156,23 +144,35 @@ bool loopReadTemp() {
 
   if (pushExpired || runMode == RunMode::tempMode) {
     pushMillis = millis();
-    LOG_PERF_START("loop-push");
 
-    if (myWifi
-            .isConnected()) {  // no need to try if there is no wifi connection.
-      LOG_PERF_START("loop-temp-read");
-      float tempC = myTempSensor.getTempC();
-      LOG_PERF_STOP("loop-temp-read");
+    if (myWifi.isConnected()) {
+      TempSensor ts;
+      BatteryVoltage bv;
+      BasePush push(&myConfig);
+      TemplatingEngine tpl(&myConfig);
 
-      PushTarget push;
-      push.sendAll(tempC, (millis() - runtimeMillis) / 1000);
-    }
+      tpl.initialize(ts.getInstance().getTempC(), bv.getInstance().getVoltage(),
+                     (millis() - runtimeMillis) / 1000);
 
-    LOG_PERF_STOP("loop-push");
+      if (myConfig.hasTargetHttpPost()) {
+        String payload = tpl.create(TemplatingEngine::TEMPLATE_HTTP1);
+        push.sendHttpPost(payload);
+      }
 
-    // Send stats to influx after each push run.
-    if (runMode == RunMode::configurationMode) {
-      LOG_PERF_PUSH();
+      if (myConfig.hasTargetHttpGet()) {
+        String payload = tpl.create(TemplatingEngine::TEMPLATE_HTTP3);
+        push.sendHttpGet(payload);
+      }
+
+      if (myConfig.hasTargetInfluxDb2()) {
+        String payload = tpl.create(TemplatingEngine::TEMPLATE_INFLUX);
+        push.sendInfluxDb2(payload);
+      }
+
+      if (myConfig.hasTargetMqtt()) {
+        String payload = tpl.create(TemplatingEngine::TEMPLATE_MQTT);
+        push.sendMqtt(payload);
+      }
     }
   }
   return true;
@@ -181,23 +181,18 @@ bool loopReadTemp() {
 void loopTempOnInterval() {
   if (abs((int32_t)(millis() - loopMillis)) > interval) {
     loopMillis = millis();
-    myBatteryVoltage.read();
-    checkSleepMode(myBatteryVoltage.getVoltage());
+    BatteryVoltage bv;
+    bv.getInstance().read();
+    checkSleepMode(bv.getInstance().getVoltage());
   }
 }
 
-bool skipRunTimeLog = false;
-
 void goToSleep(int sleepInterval) {
-  float volt = myBatteryVoltage.getVoltage();
   float runtime = (millis() - runtimeMillis);
 
-  Log.notice(F("MAIN: Entering deep sleep for %ds, run time %Fs, "
-               "battery=%FV." CR),
-             sleepInterval, reduceFloatPrecision(runtime / 1000, 2), volt);
+  Log.notice(F("MAIN: Entering deep sleep for %ds, run time %Fs." CR),
+             sleepInterval, reduceFloatPrecision(runtime / 1000, 2));
   LittleFS.end();
-  LOG_PERF_STOP("run-time");
-  LOG_PERF_PUSH();
   delay(100);
   deepSleep(sleepInterval);
 }
@@ -205,13 +200,10 @@ void goToSleep(int sleepInterval) {
 void loop() {
   switch (runMode) {
     case RunMode::configurationMode:
-      if (myWifi.isConnected()) myWebServerHandler.loop();
+      if (myWifi.isConnected()) myWebHandler.loop();
 
       myWifi.loop();
       loopTempOnInterval();
-
-      // If we switched mode, dont include this in the log.
-      if (runMode != RunMode::configurationMode) skipRunTimeLog = true;
       break;
 
     case RunMode::tempMode:

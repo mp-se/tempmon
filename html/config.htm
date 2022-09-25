@@ -34,7 +34,7 @@
             </a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#">Configuration</a></li>
-              <li><a class="dropdown-item" href="/firmware.htm">Upload firmware</a></li>
+              <li><a class="dropdown-item" href="/upload.htm">Upload firmware</a></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -93,8 +93,9 @@
       <div id="collapseDevice" class="accordion-collapse collapse show" aria-labelledby="headingDevice" data-bs-parent="#accordion">
         <div class="accordion-body">
 
-          <form action="/api/config/device" method="post">
+          <form action="/api/config" method="post">
             <input type="text" name="id" id="id1" hidden>
+            <input type="text" name="section" value="#collapseDevice" hidden>
 
             <div class="row mb-3">
               <label for="mdns" class="col-sm-2 col-form-label">Device name</label>
@@ -161,7 +162,8 @@
       </h2>
       <div id="collapsePush" class="accordion-collapse collapse" aria-labelledby="headingPush" data-bs-parent="#accordion">
         <div class="accordion-body">
-          <form action="/api/config/push" method="post">
+          <form action="/api/config" method="post">
+            <input type="text" name="section" value="#collapsePush" hidden>
             <input type="text" name="id" id="id2" hidden>
             <input type="text" name="section" value="collapsePush" hidden>
             <input type="text" name="http-push-h1" id="http-push-h1" hidden>
@@ -211,7 +213,8 @@
       <div id="collapsePush2" class="accordion-collapse collapse" aria-labelledby="headingPush2" data-bs-parent="#accordion">
         <div class="accordion-body">
 
-          <form action="/api/config/push" method="post">
+          <form action="/api/config" method="post">
+            <input type="text" name="section" value="#collapsePush2" hidden>
             <input type="text" name="id" id="id5" hidden>
             <input type="text" name="section" value="collapsePush2" hidden>
 
@@ -293,7 +296,8 @@
       <div id="collapseHardware" class="accordion-collapse collapse" aria-labelledby="headingHardware" data-bs-parent="#accordion">
         <div class="accordion-body">
 
-          <form action="/api/config/hardware" method="post">
+          <form action="/api/config" method="post">
+            <input type="text" name="section" value="#collapseHardware" hidden>
             <input type="text" name="id" id="id4" hidden>
 
             <div class="row mb-3">
@@ -301,7 +305,6 @@
               <div class="col-sm-2">
                 <input type="number" step=".01" class="form-control" name="voltage-factor" id="voltage-factor" placeholder="1.59" data-bs-toggle="tooltip" title="Factor used to calculate the battery voltage. Can vary depending on the R2 value">
               </div>
-              <label for="voltage-factor" class="col-sm-3 col-form-label" id="battery">Loading...</label>
             </div>
 
             <div class="row mb-3">
@@ -346,18 +349,17 @@
             </div>
           </div>
 
-          <form action="/api/config/advanced" method="post">
+          <form action="/api/config" method="post">
+            <input type="text" name="section" value="#collapseAdvanced" hidden>
             <input type="text" name="id" id="id6" hidden>
 
             <div class="row mb-3">
-              <label for="tempsensor-resolution" class="col-sm-3 col-form-label">DS18B20 resolution (bits)</label>
+              <label for="temp-sensor-resolution" class="col-sm-3 col-form-label">DS18B20 resolution (bits)</label>
               <div class="col-sm-3">
-                <input disabled type="number" min="9" max="12" class="form-control" name="tempsensor-resolution" id="tempsensor-resolution" placeholder="12" checked data-bs-toggle="tooltip" title="Resolution when reading the DS18B20 temperature sensor, higher resolution give better accuracy but takes longer"> 
+                <input disabled type="number" min="9" max="12" class="form-control" name="temp-sensor-resolution" id="temp-sensor-resolution" placeholder="12" checked data-bs-toggle="tooltip" title="Resolution when reading the DS18B20 temperature sensor, higher resolution give better accuracy but takes longer"> 
               </div>
               <div class="col-sm-5">(9 - 12) - default 12 bits</div>
             </div>
-
-            <hr>
 
             <div class="row mb-3">
               <label for="wifi-connect-timeout" class="col-sm-3 col-form-label">Wifi connect timeout (s)</label>
@@ -373,6 +375,14 @@
                 <input disabled type="number" min="10" max="240" class="form-control" name="wifi-portal-timeout" id="wifi-portal-timeout" placeholder="120" checked data-bs-toggle="tooltip" title="Max time the wifi portal is active before existing"> 
               </div>
               <div class="col-sm-5">(10 - 240) - default 120 s</div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="push-timeout" class="col-sm-3 col-form-label">Push timeout (s)</label>
+              <div class="col-sm-3">
+                <input disabled type="number" min="10" max="60" class="form-control" name="push-timeout" id="push-timeout" placeholder="10" checked data-bs-toggle="tooltip" title="Max time the http push to wait for response before skipping"> 
+              </div>
+              <div class="col-sm-5">(10 - 60) - default 10 s</div>
             </div>
 
             <div class="row mb-3">
@@ -473,7 +483,7 @@
 
     function updateSleepInfo() {
       var i = parseInt($("#sleep-interval").val());
-      var rt = parseInt($("#runtime-average").val());
+      var rt = 4; // parseInt($("#runtime-average").val());
       var j = 0;
 
       if( rt>0 )
@@ -511,34 +521,8 @@
       $("#advanced-btn").prop("disabled", b);
       $("#wifi-portal-timeout").prop("disabled", b);
       $("#wifi-connect-timeout").prop("disabled", b);
-      $("#tempsensor-resolution").prop("disabled", b);
-    }
-
-    // Get the advanced values from the API
-    function getAdvancedConfig() {
-      setButtonDisabled( true );
-
-      var url = "/api/config/advanced";
-      //var url = "/test/adv.json";
-      $('#spinner').show(); 
-      $.getJSON(url, function (cfg) {
-        console.log( cfg );
-
-        $("#wifi-portal-timeout").val(cfg["wifi-portal-timeout"]);
-        $("#wifi-connect-timeout").val(cfg["wifi-connect-timeout"]);
-        $("#tempsensor-resolution").val(cfg["tempsensor-resolution"]);
-
-        if ( cfg["wifi-portal-timeout"] != 120 || cfg["wifi-connect-timeout"] != 20 || cfg["tempsensor-resolution"] != 12 ) {
-          $("#adv-config").attr("checked", false );
-        }
-      })
-      .fail(function () {
-        showError('Unable to get data from the device.');
-      })
-      .always(function() {
-        $('#spinner').hide(); 
-        setButtonDisabled( false );
-      });
+      $("#temp-sensor-resolution").prop("disabled", b);
+      $("#push-timeout").prop("disabled", b);
     }
 
     // Get the configuration values from the API
@@ -582,17 +566,26 @@
         $("#voltage-factor").val(cfg["voltage-factor"]);
         $("#voltage-config").val(cfg["voltage-config"]);
         $("#temp-adjustment-value").val(cfg["temp-adjustment-value"]);
-        $("#battery").text(cfg["battery"] + " V");
-        $("#runtime-average").val(cfg["runtime-average"]);
         $("#wifi-ssid").text(cfg["wifi-ssid"]);
         $("#wifi-ssid2").text(cfg["wifi-ssid2"]);
+
+        $("#wifi-portal-timeout").val(cfg["wifi-portal-timeout"]);
+        $("#wifi-connect-timeout").val(cfg["wifi-connect-timeout"]);
+        $("#temp-sensor-resolution").val(cfg["temp-sensor-resolution"]);
+        $("#push-timeout").val(cfg["push-timeout"]);
+
+        if ( cfg["wifi-portal-timeout"] != 120 || cfg["wifi-connect-timeout"] != 20 || cfg["temp-sensor-resolution"] != 12 || cfg["push-timeout"] != 10 ) {
+          console.log("debug");
+          $("#adv-config").attr("checked", false );
+        }
       })
       .fail(function () {
         showError('Unable to get data from the device.');
       })
       .always(function() {
         updateSleepInfo();
-        getAdvancedConfig();
+        $('#spinner').hide(); 
+        setButtonDisabled( false );
       });
     }
   </script>

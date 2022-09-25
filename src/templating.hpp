@@ -24,14 +24,11 @@ SOFTWARE.
 #ifndef SRC_TEMPLATING_HPP_
 #define SRC_TEMPLATING_HPP_
 
-// Includes
 #include <Arduino.h>
 
-#include <algorithm>
-#include <helper.hpp>
-#include <main.hpp>
+#include <tempconfig.hpp>
+#include <utils.hpp>
 
-// Templating variables
 #define TPL_MDNS "${mdns}"
 #define TPL_ID "${id}"
 #define TPL_TOKEN "${token}"
@@ -39,7 +36,7 @@ SOFTWARE.
 #define TPL_TEMP "${temp}"
 #define TPL_TEMP_C "${temp-c}"
 #define TPL_TEMP_F "${temp-f}"
-#define TPL_TEMP_UNITS "${temp-unit}"  // C or F
+#define TPL_TEMP_UNITS "${temp-unit}"
 #define TPL_BATTERY "${battery}"
 #define TPL_RSSI "${rssi}"
 #define TPL_RUN_TIME "${run-time}"
@@ -160,6 +157,8 @@ class TemplatingEngine {
     }
   }
 
+  TempConfig *_config = 0;
+
  public:
   enum Templates {
     TEMPLATE_HTTP1 = 0,
@@ -168,7 +167,7 @@ class TemplatingEngine {
     TEMPLATE_MQTT = 4
   };
 
-  TemplatingEngine() {}
+  explicit TemplatingEngine(TempConfig *config) { _config = config; }
   ~TemplatingEngine() { freeMemory(); }
 
   void freeMemory() {
@@ -177,7 +176,7 @@ class TemplatingEngine {
     _output = 0;
     _baseTemplate.clear();
   }
-  void initialize(float tempC, float runTime);
+  void initialize(float tempC, float battery, float runTime);
   const char *create(TemplatingEngine::Templates idx);
 };
 

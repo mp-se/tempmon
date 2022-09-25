@@ -33,7 +33,7 @@
             </a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="/config.htm">Configuration</a></li>
-              <li><a class="dropdown-item" href="/firmware.htm">Upload firmware</a></li>
+              <li><a class="dropdown-item" href="/upload.htm">Upload firmware</a></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -91,13 +91,8 @@
           <div class="row mb-3">
             <div class="col-md-4 bg-light">Battery:</div>
             <div class="col-md-4 bg-light" id="battery">Loading...</div>
-          </div>
-      
-          <div class="row mb-3">
-            <div class="col-md-4 bg-light">Average runtime:</div>
-            <div class="col-md-4 bg-light" id="runtime">Loading...</div>
-          </div>
-            
+          </div>  
+           
         </div>
       </div>
 
@@ -129,59 +124,7 @@
               <div class="col-md-4 bg-light">SSID:</div>
               <div class="col-md-4 bg-light" id="wifi-ssid">Loading...</div>
             </div>
-
-            <script>
-              $("#log-btn").click(function(e){
-                loadLog();
-              });
-              setInterval(function() {
-                loadLog();
-              }, 30000);
-            
-              function loadLog() {
-                var url2 = "/log2"; 
-                var url1 = "/log"; 
-                //var url2 = "/test/log2"; 
-                //var url1 = "/test/log1"; 
-                var log = "";
-                
-                $.get(url2, function(data) {
-                  console.log(data);
-                  var list = data.split("\n");
-                  list.forEach(function (item, index) {
-                    log = item + "\n" + log;
-                  });
-                }).always( function() { 
-                  $.get(url1, function(data) {
-                    console.log(data);
-                    var list = data.split("\n");          
-                    list.forEach(function (item, index) {
-                      log = item + "\n" + log;
-                    });
-                  }).always( function() { 
-                    console.log(log);
-                    $("#logContent").text(log);
-                  });
-                });
-              };
-            </script>
           
-            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLog" aria-expanded="false" aria-controls="collapseLog" data-bs-toggle="tooltip" title="Load and show the last 10 errors that has occured on the device">
-              View error log
-            </button>
-
-            <div class="collapse row-margin-10" id="collapseLog">
-              <div class="card card-body">
-                <pre><code class="card-text" id="logContent" data-bs-toggle="tooltip" title="Shows the last errors on the device, newest on top.">Loading log data, please wait...</code></pre>
-              </div>
-            </div>
-
-            <div class="collapse row-margin-10" id="collapseSupport">
-              <div class="card card-body">
-                <pre><code class="card-text" id="supportContent">Collecting support data, please wait...</code></pre>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
@@ -206,7 +149,6 @@
         $("#mdns").text(cfg["mdns"]);
         $("#id").text(cfg["id"]);
         $("#wifi-ssid").text(cfg["wifi-ssid"]);
-        $("#runtime").text(cfg["runtime-average"] + " seconds");
     
         var batt = cfg["battery"];
         var charge = 0;

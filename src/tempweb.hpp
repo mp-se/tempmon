@@ -21,12 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#define INCBIN_OUTPUT_SECTION ".irom.text"
-#include <incbin.h>
+#ifndef SRC_TEMPWEB_HPP_
+#define SRC_TEMPWEB_HPP_
 
-INCBIN(IndexHtm, "html/index.min.htm");
-INCBIN(ConfigHtm, "html/config.min.htm");
-INCBIN(AboutHtm, "html/about.min.htm");
-INCBIN(UploadHtm, "html/firmware.min.htm");
+#include <basewebhandler.hpp>
+#include <tempconfig.hpp>
+
+class TempWebHandler : public BaseWebHandler {
+ private:
+  TempConfig* _config = 0;
+
+  void setupWebHandlers();
+  void webHandleStatus();
+
+ public:
+  explicit TempWebHandler(TempConfig* config);
+};
+
+#endif  // SRC_TEMPWEB_HPP_
 
 // EOF

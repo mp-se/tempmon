@@ -36,7 +36,7 @@ extern RunMode runMode;
 #define ESP_RESET ESP.reset
 #define PIN_SDA D3
 #define PIN_SCL D4
-#define PIN_DS D6
+#define PIN_DS18B20 D6
 #define PIN_LED 2
 
 #define PIN_LED 2

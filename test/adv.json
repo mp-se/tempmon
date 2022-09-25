@@ -1,6 +1,0 @@
-{
-  "wifi-portal-timeout": 120,
-  "wifi-connect-timeout": 20,
-  "push-timeout": 10,
-  "tempsensor-resolution": 9
-}

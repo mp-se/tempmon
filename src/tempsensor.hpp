@@ -24,19 +24,30 @@ SOFTWARE.
 #ifndef SRC_TEMPSENSOR_HPP_
 #define SRC_TEMPSENSOR_HPP_
 
+#include <tempconfig.hpp>
+
 class TempSensor {
  private:
   bool _hasSensor = false;
   float _tempSensorAdjC = 0;
   float getValue();
+  TempConfig* _config = 0;
+
+  TempSensor(TempSensor const&) = delete;
+  void operator=(TempSensor const&) = delete;
 
  public:
-  void setup();
+  TempSensor() {}
+
+  static TempSensor& getInstance() {
+    static TempSensor _instance;
+    return _instance;
+  }
+
+  void setup(TempConfig* config);
   bool isSensorAttached() { return _hasSensor; }
   float getTempC() { return getValue() + _tempSensorAdjC; }
 };
-
-extern TempSensor myTempSensor;
 
 #endif  // SRC_TEMPSENSOR_HPP_
 

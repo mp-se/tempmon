@@ -25,16 +25,14 @@ SOFTWARE.
 #include <OneWire.h>
 #include <Wire.h>
 
-#include <config.hpp>
 #include <main.hpp>
 #include <tempsensor.hpp>
 
-OneWire myOneWire(PIN_DS);
+OneWire myOneWire(PIN_DS18B20);
 DallasTemperature mySensors(&myOneWire);
 
-TempSensor myTempSensor;
-
-void TempSensor::setup() {
+void TempSensor::setup(TempConfig* config) {
+  _config = config;
 #if LOG_LEVEL == 6
   Log.verbose(F("TSEN: Looking for temp sensors." CR));
 #endif
@@ -43,11 +41,11 @@ void TempSensor::setup() {
   if (mySensors.getDS18Count()) {
     Log.notice(
         F("TSEN: Found %d temperature sensor(s). Using %d resolution" CR),
-        mySensors.getDS18Count(), myAdvancedConfig.getTempSensorResolution());
+        mySensors.getDS18Count(), _config->getTempSensorResolution());
   }
 
   // Set the temp sensor adjustment values
-  _tempSensorAdjC = myConfig.getTempSensorAdjC();
+  _tempSensorAdjC = _config->getTempSensorAdjC();
 
 #if LOG_LEVEL == 6
   Log.verbose(F("TSEN: Adjustment values for temp sensor %F C." CR),
@@ -63,7 +61,7 @@ float TempSensor::getValue() {
   }
 
   // Read the sensors
-  mySensors.setResolution(myAdvancedConfig.getTempSensorResolution());
+  mySensors.setResolution(_config->getTempSensorResolution());
   mySensors.requestTemperatures();
 
   float c = 0;

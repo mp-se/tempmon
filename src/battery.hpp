@@ -21,12 +21,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-#define INCBIN_OUTPUT_SECTION ".irom.text"
-#include <incbin.h>
+#ifndef SRC_BATTERY_HPP_
+#define SRC_BATTERY_HPP_
 
-INCBIN(IndexHtm, "html/index.min.htm");
-INCBIN(ConfigHtm, "html/config.min.htm");
-INCBIN(AboutHtm, "html/about.min.htm");
-INCBIN(UploadHtm, "html/firmware.min.htm");
+#include <tempconfig.hpp>
+
+class BatteryVoltage {
+ private:
+  float _batteryLevel = 0;
+  TempConfig* _config = 0;
+
+  BatteryVoltage(BatteryVoltage const&) = delete;
+  void operator=(BatteryVoltage const&) = delete;
+
+ public:
+  BatteryVoltage() {}
+  void setConfig(TempConfig* config) { _config = config; }
+
+  static BatteryVoltage& getInstance() {
+    static BatteryVoltage _instance;
+    return _instance;
+  }
+
+  void read();
+  float getVoltage() { return _batteryLevel; }
+};
+
+#endif  // SRC_BATTERY_HPP_
 
 // EOF

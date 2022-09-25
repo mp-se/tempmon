@@ -23,10 +23,9 @@ SOFTWARE.
  */
 #include <ESP8266WiFi.h>
 
-#include <config.hpp>
+#include <tempconfig.hpp>
 #include <templating.hpp>
 
-// Use iSpindle format for compatibility, HTTP POST
 const char iSpindleFormat[] PROGMEM =
     "{"
     "\"name\" : \"${mdns}\", "
@@ -42,7 +41,6 @@ const char iSpindleFormat[] PROGMEM =
     "\"run-time\": ${run-time} "
     "}";
 
-// Format for an HTTP GET
 const char iHttpGetFormat[] PROGMEM =
     "?name=${mdns}"
     "&id=${id}"
@@ -69,14 +67,14 @@ const char mqttFormat[] PROGMEM =
 //
 // Initialize the variables
 //
-void TemplatingEngine::initialize(float tempC, float runTime) {
+void TemplatingEngine::initialize(float tempC, float battery, float runTime) {
   // Names
-  setVal(TPL_MDNS, myConfig.getMDNS());
-  setVal(TPL_ID, myConfig.getID());
-  setVal(TPL_TOKEN, myConfig.getToken());
+  setVal(TPL_MDNS, _config->getMDNS());
+  setVal(TPL_ID, _config->getID());
+  setVal(TPL_TOKEN, _config->getToken());
 
   // Temperature
-  if (myConfig.isTempC()) {
+  if (_config->isTempFormatC()) {
     setVal(TPL_TEMP, tempC, 1);
   } else {
     setVal(TPL_TEMP, convertCtoF(tempC), 1);
@@ -84,11 +82,11 @@ void TemplatingEngine::initialize(float tempC, float runTime) {
 
   setVal(TPL_TEMP_C, tempC, 1);
   setVal(TPL_TEMP_F, convertCtoF(tempC), 1);
-  setVal(TPL_TEMP_UNITS, myConfig.getTempFormat());
+  setVal(TPL_TEMP_UNITS, _config->getTempFormat());
 
   // Battery & Timer
-  setVal(TPL_BATTERY, myBatteryVoltage.getVoltage());
-  setVal(TPL_SLEEP_INTERVAL, myConfig.getSleepInterval());
+  setVal(TPL_BATTERY, battery);
+  setVal(TPL_SLEEP_INTERVAL, _config->getSleepInterval());
 
   // Performance metrics
   setVal(TPL_RUN_TIME, runTime, 1);
@@ -126,7 +124,7 @@ const char* TemplatingEngine::create(TemplatingEngine::Templates idx) {
   }
 
 #if LOG_LEVEL == 6
-    // Log.verbose(F("TPL : Base '%s'." CR), baseTemplate.c_str());
+  Log.verbose(F("TPL : Base '%s'." CR), _baseTemplate.c_str());
 #endif
 
   // Insert data into template.
