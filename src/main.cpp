@@ -135,15 +135,15 @@ void setup() {
 }
 
 bool loopReadTemp() {
-#if LOG_LEVEL == 6
-  Log.verbose(F("Main: Entering main loopTemp." CR));
-#endif
-
   bool pushExpired = (abs((int32_t)(millis() - pushMillis)) >
                       (myConfig.getSleepInterval() * 1000));
 
   if (pushExpired || runMode == RunMode::tempMode) {
     pushMillis = millis();
+
+#if LOG_LEVEL == 6
+    Log.verbose(F("Main: Entering main loopTemp." CR));
+#endif
 
     if (myWifi.isConnected()) {
       TempSensor ts;
@@ -204,6 +204,7 @@ void loop() {
 
       myWifi.loop();
       loopTempOnInterval();
+      loopReadTemp();
       break;
 
     case RunMode::tempMode:
