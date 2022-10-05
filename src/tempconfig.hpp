@@ -52,7 +52,6 @@ class TempConfig : public BaseConfig {
   String _token = "";
 
   int _tempSensorResolution = 12;  // bits
-  int _gyroReadCount = 50;
 
  public:
   TempConfig(String baseMDNS, String fileName);
