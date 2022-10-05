@@ -166,16 +166,16 @@
             <input type="text" name="section" value="#collapsePush" hidden>
             <input type="text" name="id" id="id2" hidden>
             <input type="text" name="section" value="collapsePush" hidden>
-            <input type="text" name="http-push-h1" id="http-push-h1" hidden>
-            <input type="text" name="http-push-h2" id="http-push-h2" hidden>
+            <input type="text" name="http-post-header1" id="http-post-header1" hidden>
+            <input type="text" name="http-post-header2" id="http-post-header2" hidden>
 
             <div class="row mb-3">
-              <label for="http-push" class="col-sm-2 col-form-label">HTTP POST</label>
+              <label for="http-post-target" class="col-sm-2 col-form-label">HTTP POST</label>
               <div class="col-sm-8">
-                <input type="url" maxlength="120" class="form-control" name="http-push" id="http-push" placeholder="http://www.internet.com/path" data-bs-toggle="tooltip" title="URL to push target, use format http://servername.com/resource (Supports http and https)">
+                <input type="url" maxlength="120" class="form-control" name="http-post-target" id="http-post-target" placeholder="http://www.internet.com/path" data-bs-toggle="tooltip" title="URL to push target, use format http://servername.com/resource (Supports http and https)">
               </div>
               <div class="col-sm-2">
-                <button type="button" class="btn btn-secondary" data-field1="#http-push-h1" data-field2="#http-push-h2" data-bs-toggle="modal" data-bs-target="#modal-http" data-bs-toggle="tooltip" title="Edit the http headers for data format and authentication">Headers</button>
+                <button type="button" class="btn btn-secondary" data-field1="#http-post-header1" data-field2="#http-post-header2" data-bs-toggle="modal" data-bs-target="#modal-http" data-bs-toggle="tooltip" title="Edit the http headers for data format and authentication">Headers</button>
               </div>
             </div>
 
@@ -187,9 +187,9 @@
             </div>
 
             <div class="row mb-3">
-              <label for="http-push3" class="col-sm-2 col-form-label">HTTP GET</label>
+              <label for="http-get-target" class="col-sm-2 col-form-label">HTTP GET</label>
               <div class="col-sm-8">
-                <input type="url" maxlength="120" class="form-control" name="http-push3" id="http-push3" placeholder="http://www.internet.com/path" data-bs-toggle="tooltip" title="URL to push target, use format http://servername.com/resource (Supports http and https). Do not add the query string, that will be added via the format template">
+                <input type="url" maxlength="120" class="form-control" name="http-get-target" id="http-get-target" placeholder="http://www.internet.com/path" data-bs-toggle="tooltip" title="URL to push target, use format http://servername.com/resource (Supports http and https). Do not add the query string, that will be added via the format template">
               </div>
             </div>
 
@@ -219,9 +219,9 @@
             <input type="text" name="section" value="collapsePush2" hidden>
 
             <div class="row mb-3">
-              <label for="influxdb2-push" class="col-sm-2 col-form-label">InfluxDB v2 URL</label>
+              <label for="influxdb2-target" class="col-sm-2 col-form-label">InfluxDB v2 URL</label>
               <div class="col-sm-8">
-                <input type="url" maxlength="40" class="form-control" name="influxdb2-push" placeholder="http://www.internet.com" id="influxdb2-push" data-bs-toggle="tooltip" title="URL to push target, use format http://servername.com (Supports http and https)">
+                <input type="url" maxlength="40" class="form-control" name="influxdb2-target" placeholder="http://www.internet.com" id="influxdb2-target" data-bs-toggle="tooltip" title="URL to push target, use format http://servername.com (Supports http and https)">
               </div>
             </div>
 
@@ -240,18 +240,18 @@
             </div>
 
             <div class="row mb-3">
-              <label for="influxdb2-auth" class="col-sm-2 col-form-label">InfluxDB v2 Auth</label>
+              <label for="influxdb2-token" class="col-sm-2 col-form-label">InfluxDB v2 Auth</label>
               <div class="col-sm-4">
-                <input type="text" maxlength="100" class="form-control" name="influxdb2-auth" id="influxdb2-auth" data-bs-toggle="tooltip" title="Authentication token for accessing data bucket">
+                <input type="text" maxlength="100" class="form-control" name="influxdb2-token" id="influxdb2-token" data-bs-toggle="tooltip" title="Authentication token for accessing data bucket">
               </div>
             </div>
 
             <hr class="my-2">
 
             <div class="row mb-3">
-              <label for="mqtt-push" class="col-sm-2 col-form-label">MQTT Server</label>
+              <label for="mqtt-target" class="col-sm-2 col-form-label">MQTT Server</label>
               <div class="col-sm-4">
-                <input type="text" maxlength="40" class="form-control" name="mqtt-push" id="mqtt-push" placeholder="www.internet.com" data-bs-toggle="tooltip" title="Name of server to connect to, use format servername.com">
+                <input type="text" maxlength="40" class="form-control" name="mqtt-target" id="mqtt-target" placeholder="www.internet.com" data-bs-toggle="tooltip" title="Name of server to connect to, use format servername.com">
               </div>
             </div>
 
@@ -364,9 +364,9 @@
             <div class="row mb-3">
               <label for="wifi-connect-timeout" class="col-sm-3 col-form-label">Wifi connect timeout (s)</label>
               <div class="col-sm-3">
-                <input disabled type="number" min="1" max="60" class="form-control" name="wifi-connect-timeout" id="wifi-connect-timeout" placeholder="20" checked data-bs-toggle="tooltip" title="Max time waiting for a wifi connection before going back to sleep"> 
+                <input disabled type="number" min="1" max="60" class="form-control" name="wifi-connect-timeout" id="wifi-connect-timeout" placeholder="30" checked data-bs-toggle="tooltip" title="Max time waiting for a wifi connection before going back to sleep"> 
               </div>
-              <div class="col-sm-5">(1 - 60) - default 20 s</div>
+              <div class="col-sm-5">(1 - 60) - default 30 s</div>
             </div>
 
             <div class="row mb-3">
@@ -432,15 +432,15 @@
     modal.find('.modal-body #field2').val(field2)
   })
   $('#modal-http').on('hide.bs.modal', function (event) {
-    console.log("2")
     var modal = $(this)
     field1 = modal.find('.modal-body #field1').val()
     field2 = modal.find('.modal-body #field2').val()
     $(field1).val(modal.find('.modal-body #header1').val())
     $(field2).val(modal.find('.modal-body #header2').val())
+    //console.log( field1 + " " + $(field1).val());
+    //console.log( field2 + " " + $(field2).val());
   })
   function checkHeader(input) {
-    console.log( input.value );
     if (input.value != "" && input.value.indexOf(":") == -1) {
       $("#btn-close").prop("disabled", true);
       $(input).removeClass("is-valid").addClass("is-invalid");
@@ -550,15 +550,15 @@
         if( cfg["temp-format"] == "C" ) $("#temp-format-c").click();
         else $("#temp-format-f").click();
         $("#token").val(cfg["token"]);
-        $("#http-push").val(cfg["http-push"]);
-        $("#http-push-h1").val(cfg["http-push-h1"]);
-        $("#http-push-h2").val(cfg["http-push-h2"]);
-        $("#http-push3").val(cfg["http-push3"]);
-        $("#influxdb2-push").val(cfg["influxdb2-push"]);
+        $("#http-post-target").val(cfg["http-post-target"]);
+        $("#http-post-header1").val(cfg["http-post-header1"]);
+        $("#http-post-header2").val(cfg["http-post-header2"]);
+        $("#http-get-target").val(cfg["http-get-target"]);
+        $("#influxdb2-target").val(cfg["influxdb2-target"]);
         $("#influxdb2-org").val(cfg["influxdb2-org"]);
         $("#influxdb2-bucket").val(cfg["influxdb2-bucket"]);
-        $("#influxdb2-auth").val(cfg["influxdb2-auth"]);
-        $("#mqtt-push").val(cfg["mqtt-push"]);
+        $("#influxdb2-token").val(cfg["influxdb2-token"]);
+        $("#mqtt-target").val(cfg["mqtt-target"]);
         $("#mqtt-port").val(cfg["mqtt-port"]);
         $("#mqtt-user").val(cfg["mqtt-user"]);
         $("#mqtt-pass").val(cfg["mqtt-pass"]);
@@ -574,7 +574,7 @@
         $("#temp-sensor-resolution").val(cfg["temp-sensor-resolution"]);
         $("#push-timeout").val(cfg["push-timeout"]);
 
-        if ( cfg["wifi-portal-timeout"] != 120 || cfg["wifi-connect-timeout"] != 20 || cfg["temp-sensor-resolution"] != 12 || cfg["push-timeout"] != 10 ) {
+        if ( cfg["wifi-portal-timeout"] != 120 || cfg["wifi-connect-timeout"] != 30 || cfg["temp-sensor-resolution"] != 12 || cfg["push-timeout"] != 10 ) {
           $("#adv-config").attr("checked", false );
         }
       })
