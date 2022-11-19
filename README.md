@@ -8,6 +8,15 @@
 
 # Temperature Monitor for Beer Brewing
 
-This is a software derived from GravityMon which only support a device with a temperature sensor attached. 
+This is a software derived from GravityMon which only support a device with a temperature sensor attached. So all gyro related features are not available.
 
-This is an experminal build, based on a user request. 
+This is an experimental build, based on a user request.
+
+# Limitations 
+
+A lot of the documentation for gravitymon is valid for this software but with the following limitations:
+
+* Configuration mode is only activated when the device is charging (battery over 4.15V)
+* No customization of format templates (using fixed formats)
+
+Let me know if this is of interest and I can fix some documentation for this project.
