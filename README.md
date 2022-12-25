@@ -3,8 +3,7 @@
 ![release](https://img.shields.io/github/v/release/mp-se/tempmon?label=latest%20release)
 ![issues](https://img.shields.io/github/issues/mp-se/tempmon)
 ![pr](https://img.shields.io/github/issues-pr/mp-se/tempmon)
-![dev_build](https://img.shields.io/github/workflow/status/mp-se/tempmon/PlatformIO%20CI/dev?label=dev%20build)
-![doc_build](https://img.shields.io/github/workflow/status/mp-se/tempmon/Sphinx%20Build/dev?label=doc%20build)
+![dev_build](https://img.shields.io/github/actions/workflow/status/mp-se/tempmon/pio-build.yaml?branch=dev)
 
 # Temperature Monitor for Beer Brewing
 
